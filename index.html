@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Conciliación 5472</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: barra lateral con Inicio y la lista de LLC; Inicio = tablero del cierre mensual por estado; ficha de LLC = histórico de meses + detalle del mes */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --surface2:#f8faf9; --ink:#15211d; --muted:#5d6b66; --line:#dbe2df;
+  --nav:#0f2a24; --nav-ink:#cfe1da; --accent:#1a8f4e; --accent-ink:#ffffff; --accent-soft:#e0f3e7;
+  --ok:#2563c9; --ok-soft:#dde8fb; --done:#1f8a57; --done-soft:#dff3e8; --warn:#a86b00; --warn-soft:#fcefd2; --bad:#b83a3a; --bad-soft:#f8dfdf;
+  --display:"Manrope",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1513; --surface:#161e1b; --surface2:#1b2421; --ink:#e3ebe8; --muted:#94a39e; --line:#2a3531;
+  --nav:#0a1210; --nav-ink:#b9cdc6; --accent:#2bd06a; --accent-ink:#06210f; --accent-soft:#163b25;
+  --ok:#7fb2ff; --ok-soft:#1a2a45; --done:#5fd09a; --done-soft:#173426; --warn:#e7b44a; --warn-soft:#3a2e12; --bad:#ef8080; --bad-soft:#3d1c1c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1513; --surface:#161e1b; --surface2:#1b2421; --ink:#e3ebe8; --muted:#94a39e; --line:#2a3531;
+  --nav:#0a1210; --nav-ink:#b9cdc6; --accent:#2bd06a; --accent-ink:#06210f; --accent-soft:#163b25;
+  --ok:#7fb2ff; --ok-soft:#1a2a45; --done:#5fd09a; --done-soft:#173426; --warn:#e7b44a; --warn-soft:#3a2e12; --bad:#ef8080; --bad-soft:#3d1c1c; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+button,select,input,textarea{font:inherit;color:inherit}
+.app{display:flex;min-height:100%}
+.nav{width:228px;flex:none;background:var(--nav);color:var(--nav-ink);display:flex;flex-direction:column;gap:4px;padding:20px 12px;padding-left:max(12px,env(safe-area-inset-left,0px))}
+.brand{font-family:var(--display);font-weight:800;font-size:19px;color:#fff;padding:0 8px 2px}
+.brand small{display:block;font:500 10px var(--body);color:var(--nav-ink);opacity:.8;letter-spacing:.06em;text-transform:uppercase;margin-top:3px;white-space:nowrap}
+.brand .txt{display:flex;flex-direction:column;justify-content:center}
+.brand .logo{display:flex;align-items:center;gap:10px}
+.brand .ic{width:38px;height:38px;border-radius:10px;background:linear-gradient(145deg,#2bd06a,#17895a);display:grid;place-items:center;color:#06210f;font:700 11px var(--mono);flex:none;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.brand .bt{font:800 20px var(--display);color:#fff;line-height:1.1;white-space:nowrap}
+.nav hr{border:0;border-top:1px solid rgba(255,255,255,.08);margin:14px 4px}
+.nav button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:8px;font-weight:500}
+.nav button:hover{background:rgba(255,255,255,.06)}
+.nav button[aria-current="true"]{background:rgba(31,168,85,.22);color:#fff;box-shadow:inset 3px 0 0 #2bd06a}
+.nav .badge{background:#f08a24;color:#241000;font-weight:700}
+.flag{font:800 11px var(--body);width:16px;height:16px;border-radius:4px;display:inline-grid;place-items:center;flex:none;line-height:1}
+.f-bad{color:#ef8080;border:1.5px solid #ef8080}.f-warn{color:#e7b44a;border:1.5px solid #e7b44a}
+.nav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.badge{font:600 11px var(--mono);background:rgba(255,255,255,.12);padding:1px 7px;border-radius:999px}
+.nav .demo{margin-top:auto;font-size:12px;opacity:.75;padding:8px}
+@media (min-width:761px){.nav{position:sticky;top:env(safe-area-inset-top,0px);align-self:flex-start;height:100vh;height:100dvh;overflow-y:auto}}
+.nav .sec{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.6;padding:12px 10px 4px}
+.nav .llc{font-weight:400}
+.nav .llc .dot{box-shadow:0 0 0 2px rgba(255,255,255,.08)}
+tr.sel td{background:var(--accent-soft)}
+.clist{margin:0;padding:4px 4px 4px 20px;display:flex;flex-direction:column;gap:10px}
+.clist li{line-height:1.45}
+.old{color:var(--bad);font-weight:600}
+tr.tot td{font-weight:600;border-top:2px solid var(--line)}
+.mbtn{all:unset;cursor:pointer;font-weight:600}.mbtn:hover{text-decoration:underline}.mbtn:focus-visible{outline:2px solid var(--accent)}
+.main{flex:1;min-width:0;padding-block:22px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.inner{max-width:none;width:100%;margin:0;display:flex;flex-direction:column;gap:18px}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:800;font-size:26px;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:18px;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:15px;margin:0}
+.sub{color:var(--muted);margin:2px 0 0}
+.btn{cursor:pointer;border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:8px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:linear-gradient(145deg,#2bd06a,#17895a);border-color:#1fa85f;color:#06210f;font-weight:600}
+.btn.primary:hover{border-color:#2bd06a;filter:brightness(1.05)}
+.btn:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile .k{color:var(--muted);font-size:12px}
+.tile .v{font:600 22px var(--mono);margin-top:2px;font-variant-numeric:tabular-nums}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:860px){.board{grid-template-columns:1fr}}
+.col{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.col-h{display:flex;align-items:center;gap:8px;font-weight:600}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.d-ok{background:var(--ok)}.d-warn{background:var(--warn)}.d-bad{background:var(--bad)}
+.card{all:unset;cursor:pointer;display:block;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+.card:hover{border-color:var(--accent)}
+.card:focus-visible{outline:2px solid var(--accent)}
+.card b{display:block}
+.card span{color:var(--muted);font-size:12.5px}
+.empty{color:var(--muted);font-size:13px;padding:6px 2px}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.p-ok{background:var(--done-soft);color:var(--done)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-neu{background:var(--accent-soft);color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.alert{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--warn-soft);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.alertrow{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.alertrow .alert{width:fit-content;max-width:100%}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+.lnk{background:none;border:0;padding:0;font:inherit;font-weight:600;color:var(--fg,inherit);cursor:pointer;text-align:left}.lnk:hover{text-decoration:underline}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.neg{color:var(--bad)}.pos{color:var(--done)}
+.p-soc{background:var(--ok-soft);color:var(--ok)}
+tr.rev td{background:var(--warn-soft)}
+select.cls{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:4px 6px;max-width:220px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{all:unset;cursor:pointer;padding:8px 12px;border-bottom:2px solid transparent;font-weight:500;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+.tabs button:focus-visible{outline:2px solid var(--accent)}
+.months{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px}
+@media (max-width:600px){.months{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.m{text-align:center;font-size:11px;padding:6px 0;border-radius:6px;border:1px solid var(--line);background:var(--surface2)}
+.m.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.m.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.m.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+.kv dt{color:var(--muted)}.kv dd{margin:0}
+.form{border:2px solid var(--ink);border-radius:4px;background:var(--surface)}
+.form-h{display:flex;flex-wrap:wrap;border-bottom:2px solid var(--ink)}
+.form-h>div{padding:8px 10px}
+.form-h .fno{border-right:1px solid var(--ink);font:800 22px var(--display);min-width:110px}
+.form-h .fno small{display:block;font:500 10px var(--body)}
+.form-h .ft{flex:1;min-width:200px;font-weight:600}
+.fs{background:var(--ink);color:var(--surface);font-weight:600;font-size:12.5px;padding:5px 10px}
+.fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));border-bottom:1px solid var(--line)}
+.fc{padding:6px 10px;border-right:1px solid var(--line);min-width:0}
+.fc:last-child{border-right:0}
+.fc .l{font-size:11.5px;color:var(--muted)}
+.fc .l b{color:var(--ink);margin-right:4px}
+.fc .val{font:500 13.5px var(--mono);color:var(--accent);word-break:break-word}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.checks li{display:flex;gap:8px;align-items:flex-start}
+.ico{font:700 12px var(--mono);width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;flex:none}
+.ico.y{background:var(--ok-soft);color:var(--ok)}.ico.n{background:var(--bad-soft);color:var(--bad)}
+.search{width:100%;max-width:420px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px}
+.ins{border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.ins summary{cursor:pointer;padding:12px 14px;font-weight:600;display:flex;justify-content:space-between;gap:10px}
+.ins summary::-webkit-details-marker{display:none}
+.ins[open] summary{border-bottom:1px solid var(--line)}
+.ins .body{padding:12px 14px;display:flex;flex-direction:column;gap:8px;max-width:78ch}
+.ins .body p{margin:0}
+.src{font-size:12px;color:var(--muted);margin:0}
+textarea.msg{width:100%;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface2);font-size:13px}
+.toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);max-width:min(520px,calc(100vw - 32px));background:var(--nav);color:#fff;border:1px solid rgba(43,208,106,.45);box-shadow:0 12px 40px rgba(0,0,0,.45);padding:14px 20px;border-radius:12px;font-weight:500;text-align:center;z-index:20}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.muted{color:var(--muted)}
+.cur{margin-right:.1em}
+@media (max-width:760px){
+  .app{flex-direction:column}
+  .nav{width:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px))}
+  .nav hr,.nav .demo{display:none}
+  .brand{width:100%;padding-bottom:6px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <nav class="nav" id="nav" aria-label="Secciones">
+
+  </nav>
+  <main class="main"><div class="inner" id="view"></div></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const DEMO_PDF="JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSIC9GMiAzIDAgUiAvRjMgNCAwIFIgL0Y0IDUgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0Jhc2VGb250IC9IZWx2ZXRpY2EtQm9sZCAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjIgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iago0IDAgb2JqCjw8Ci9CYXNlRm9udCAvU3ltYm9sIC9OYW1lIC9GMyAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjUgMCBvYmoKPDwKL0Jhc2VGb250IC9IZWx2ZXRpY2EtT2JsaXF1ZSAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjQgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iago2IDAgb2JqCjw8Ci9Db250ZW50cyAxMCAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA5IDAgUiAvUmVzb3VyY2VzIDw8Ci9FeHRHU3RhdGUgPDwKL2dSTHMwIDw8Ci9jYSAuMQo+Pgo+PiAvRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNyAwIG9iago8PAovUGFnZU1vZGUgL1VzZU5vbmUgL1BhZ2VzIDkgMCBSIC9UeXBlIC9DYXRhbG9nCj4+CmVuZG9iago4IDAgb2JqCjw8Ci9BdXRob3IgKGFub255bW91cykgL0NyZWF0aW9uRGF0ZSAoRDoyMDI2MTExMTEzNDgwMCswMScwMCcpIC9DcmVhdG9yIChhbm9ueW1vdXMpIC9LZXl3b3JkcyAoKSAvTW9kRGF0ZSAoRDoyMDI2MTExMTEzNDgwMCswMScwMCcpIC9Qcm9kdWNlciAoUmVwb3J0TGFiIFBERiBMaWJyYXJ5IC0gXChvcGVuc291cmNlXCkpIAogIC9TdWJqZWN0ICh1bnNwZWNpZmllZCkgL1RpdGxlIChFeHRyYWN0byBmaWN0aWNpbyBcKGRlbW9cKSAtIEliYW5leiBDb2FjaGluZyBMTEMgLSBvY3R1YnJlIDIwMjYpIC9UcmFwcGVkIC9GYWxzZQo+PgplbmRvYmoKOSAwIG9iago8PAovQ291bnQgMSAvS2lkcyBbIDYgMCBSIF0gL1R5cGUgL1BhZ2VzCj4+CmVuZG9iagoxMCAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAxODMwCj4+CnN0cmVhbQpHYXRuJz5CQUxYJ1pdLDAuRig6JWRPbC1DPk8hMCRVcnRTWzJrZFE2KkY8IjI7IiciLFs3dGw6bUlxSFZaJkwxWTFjSnBgcVdtQENGLTRGbGldI1dpb2lELiY7czwnbT9sWiU+XmEsJHJdbmFHUnE4WFhKIVRFaU1aPmRDNUxcbT1RLCc+ZGEzLCJfKEUmQkA9I0BhJzMkRDFEJjpwLE5sXSkvbDMmJT0xPV9ETkdyLSEhV3IjMzlnKzBeMiVUNzIucFZAQ2gnVnBRUFU+ZDlvKS1edGw0WipWUDhQMl9iMTxWSmwoUnJici1DYGMpNjtDJEFNOEtoOTonMWMuKlcia1I+KChpKUI+N0NdQlRcLmspK1QmKUxmPlB1TShNUSY6bjpQQ1UhTWxCWmxQLE1wWTxiWiduP28zR2hoWTpVIlEzKmM5Jj5VVjZMNUhSaVEhNXA0QHNBQFovRy1nc1QiVydwSCpFMVQvRmZxZiQ8ITcybTZWS2hJVSNBc084XGAkTHBAa3FpJT04KVFcLFEyPmI0YHVDQExVTyU4ZWJecycrRl0qQ15FLTFHOSxWWi9bVTBFRiQldWliLmY1K05bW2tHK1NzKCEyaignRjlqYS8uIlI7bVhbSmQqTiFaa2okQ2JsZCQkPDRLOUxBMVEqP3NeYChbK1lAclNOQ2olcmQkVTU4dV1JSFRmK19fYUNYNmRrIiVBM1Y0J21AMS5CJHIhVDpYXlgvJCduRzA+NUtGSCNOJEpOPTgkcykuW2oydWJQWmc2RyFjSkJOUU87XDNkbGhXL1peKXNQUmxsRjw7bFcvSzlVdT8tbmxRK05gUC45NjBxSj8mcCxSR1twalcyWTFJPENPTmFNLl5CY3ItSEJiLilHZSMwa0NuQSojK1FcIlFhLy9LS2RHVStGO2lmcXFeXD9zOWNzakpyYDFxaFhfLWdLXzpVLmJpPjMuISIiISlkOCZhLUw9cTZOS0xpYlYnQSJKN2R0Zz4vbE80L3EtNGkjaGhjQ0tjLyR0MTtJX1lgLkw0bCxrJFpiImprOitPOzIkWzNwcE8obkZfLFxCY1UhZGNqJl4vVWFXUDluMipdPSslNUI9K0BUVGtRRTtHZT9MO3NnYV9LQDVYKS1dJTpLRi1pR19XWCtPcDAnPnM8LzY/ND1CPSIxKDxiXVtHK05EcFomMzhPNDQzODZJQyMmITw0ZmpXKkxfYkw0YF9DJSkuRj9DUWVGImViO2FxQ2RkSkp0UW8tcFRNXzk5J3A+YyhMQ2FCYi5hMjYycEAyTXEmN3RdO2VfV00+Y2VaZ21II1dHalRDPkYzOjRPcGs2OnEvI3AyL1Z1cTRiLzQ/JDFwKzFSaSY3KGIyUUUvLFJTZWtKOyZKL1Y1IU9hcDZoanE+SmZGSCdiOT4rTipzImNIKy1aOlJXdGhRKl0mSF8/dCJQYTQiRFdnVkRSIy5bUmxnQTFBVE1QZkZodShcWWYyVygkZmhsTG51MitWJVBASSVUNStkMGZKV289QTxeLGQldUwjR0FSTiIuT3J0NlYsIV9hRzNGOyNHN1FrYDByNC09RCwsZVNST3A+QD8pXnFPRChsVj9ASlJALi5cPVwqRDQvUVlEXzFxXSgkITZkJGMmYkg9UiRPQSVgIyhbWWorMk1kL1tyWEpKR3JGI0ohTCdjIkFBPDUlcEYuayQxX18zRDxZb1siOG9CVFl0aEhYOkMsbTtrVS0yNS9jdSMpKmksM1QncGVtYVxeYzw8PF5fPTNpT2EsYW0oXUNtVVRMN1o1L25xLXIiQ3AyISMlNFsxOlsoTXBgdSM0aSFETDs9QHJJS0FsMms6Yzh1V2lGW09eckZfSyVbQFFbMVU4Qz5PKTdAbDs1ZztCVD9LU2ksQyNZR1oqQiVmOCVxKGBAL1stMTpMOk8zaT0kLSVEXWU+UigpKkkmWzU3WFFfbVgrb0tsWjZdPXFbQmk4JnBqcGRcJz5ecUlIaW5eL18/O18sYGBgZmZkS0lfVCZOckAwWjxfVzxQQ3VIRzJCbFFqbnQsMW9gYCNlODcnWm5WKjxTMjQxXnRnOUFQYE5sXSxmMipBMSpscWg5MGo2bVdiTSJNNTRGVVttKCJMM1xdV1Y9TV5mUHQqX14lbUxyR2xxIjkxJVFqKSomIzNIXDMjVFdvNGwhaDg6UjQ+UikjU04+YGloJGxub1ksWT5qQHJAIWQ0IXVaQSUuNVRPYWZfRm1nU2wlZElrVTouSV1sb1M2MjpXUE5Aa3BAc01QKiUkc1ZCXVo0X1QqNCNgMy4rcTJjZWpobk0iI2oiY1VqWUc9bml1U04lPDs6LDxvRmZqVig3dEkpXUdYP3VxcGtfJ1FyMV1GR0ApaXNuMFZcNmI7YV9AKkkpbik1Yj83bycwP25DQEFecm5vbjY4Vkk6LHJyW0lRYTc5fj5lbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAxMQowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwNjEgMDAwMDAgbiAKMDAwMDAwMDEyMiAwMDAwMCBuIAowMDAwMDAwMjI5IDAwMDAwIG4gCjAwMDAwMDAzNDEgMDAwMDAgbiAKMDAwMDAwMDQxOCAwMDAwMCBuIAowMDAwMDAwNTMzIDAwMDAwIG4gCjAwMDAwMDA3NzQgMDAwMDAgbiAKMDAwMDAwMDg0MiAwMDAwMCBuIAowMDAwMDAxMTU4IDAwMDAwIG4gCjAwMDAwMDEyMTcgMDAwMDAgbiAKdHJhaWxlcgo8PAovSUQgCls8OTAyNjdlNDFiNDcyNmNlMDE3YmFkYzliZTc5NjkyYzk+PDkwMjY3ZTQxYjQ3MjZjZTAxN2JhZGM5YmU3OTY5MmM5Pl0KJSBSZXBvcnRMYWIgZ2VuZXJhdGVkIFBERiBkb2N1bWVudCAtLSBkaWdlc3QgKG9wZW5zb3VyY2UpCgovSW5mbyA4IDAgUgovUm9vdCA3IDAgUgovU2l6ZSAxMQo+PgpzdGFydHhyZWYKMzEzOQolJUVPRgo=";
+(function(){
+const YEAR=2026, CLOSING=9; // octubre (0-indexed)
+const MESES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const MESES_L=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const CATS={
+  ingreso:{t:"Ingreso del negocio",f:"—"},
+  gasto:{t:"Gasto del negocio",f:"—"},
+  aport:{t:"Aportación del socio",f:"Part V"},
+  retir:{t:"Retirada al socio",f:"Part V"},
+  prest_rec:{t:"Préstamo recibido del socio",f:"Part IV · línea 17"},
+  dev_prest:{t:"Devolución de préstamo al socio",f:"Part IV · línea 17"},
+  prest_dado:{t:"Préstamo concedido al socio",f:"Part IV · línea 31"},
+  pers_llc:{t:"Gasto personal pagado por la LLC",f:"Part V (retirada)"},
+  llc_socio:{t:"Gasto de la LLC pagado por el socio",f:"Part V (aportación)"},
+  int_socio:{t:"Intereses del préstamo pagados al socio",f:"Part IV · línea 32"},
+  compra_vinc:{t:"Compra de mercancía a empresa vinculada",f:"Part IV · línea 22"},
+  venta_vinc:{t:"Venta de mercancía a empresa vinculada",f:"Part IV · línea 9"},
+  serv_vinc:{t:"Servicios pagados a empresa vinculada",f:"Part IV · línea 29"},
+  alq_socio:{t:"Alquiler pagado al socio",f:"Part IV · línea 26"},
+  canon_vinc:{t:"Canon o licencia pagado a vinculada",f:"Part IV · línea 27"},
+  revisar:{t:"Revisar",f:"—"}
+};
+const RULES=[
+  [/gil nutricion sl/i,"compra_vinc"],
+  [/ramos tech sl/i,"canon_vinc"],
+  [/interest .*prestamo|intereses prestamo/i,"int_socio"],
+  [/stripe|paypal payout|etsy|shopify payments|amazon settlement|wise received/i,"ingreso"],
+  [/shopify sub|google ads|meta ads|adobe|canva|notion|registered agent|mercury fee|wise fee|printful|domain|hostinger|muay/i,"gasto"]
+];
+function autoClass(concept,amount){
+  for(const [re,c] of RULES){ if(re.test(concept)){ if(c==="ingreso"&&amount<0) continue; return c; } }
+  return "revisar";
+}
+
+// ---------- datos de ejemplo ----------
+function seedRand(s){return function(){s=(s*9301+49297)%233280;return s/233280;}}
+const BASE=[
+ {id:"suarez",g:"m",socio:"Carlos Alberto Suárez",llc:"Suárez Art LLC",estado:"Nuevo México",act:"Venta de pinturas artísticas online",naics:"453920",ein:"92-4417305",constit:"14/03/2025",dir:"Calle Pintor Sorolla 12, 46002 Valencia, España",nif:"48123456K",ref:"SUAREZ-001",ventas:"Etsy payout",ingreso:[2200,4800],saldo:6200,primer:false,owner:"Socio persona física"},
+ {id:"ferrer",g:"f",socio:"Lucía Ferrer",llc:"Ferrer Studio LLC",estado:"Wyoming",act:"Diseño web para clientes de EE. UU.",naics:"541430",ein:"87-2210948",constit:"02/09/2024",dir:"Av. Maisonnave 30, 03003 Alicante, España",nif:"74312987B",ref:"FERRER-001",ventas:"Stripe payout",ingreso:[3500,6200],saldo:11800,primer:false},
+ {id:"ibanez",g:"f",socio:"Marta Ibáñez",llc:"Ibañez Coaching LLC",estado:"Nuevo México",act:"Formación online",naics:"611430",ein:"93-0874412",constit:"21/01/2026",dir:"Calle Larios 5, 29005 Málaga, España",nif:"25987412M",ref:"IBANEZ-001",ventas:"Stripe payout",ingreso:[1500,3100],saldo:4100,primer:true},
+ {id:"ortega",g:"m",socio:"Pablo Ortega",llc:"Ortega Digital LLC",estado:"Florida",act:"Agencia de marketing digital",naics:"541810",ein:"88-5512039",constit:"10/06/2023",dir:"Gran Vía 40, 28013 Madrid, España",nif:"51239874T",ref:"ORTEGA-001",ventas:"Stripe payout",ingreso:[5200,8900],saldo:23500,primer:false},
+ {id:"gil",g:"f",socio:"Nerea Gil",llc:"Gil Supplements LLC",estado:"Wyoming",act:"E-commerce de suplementos (Shopify)",naics:"454110",ein:"99-3301874",constit:"05/11/2025",dir:"Calle Uría 12, 33003 Oviedo, España",nif:"10987345P",ref:"GIL-001",ventas:"Shopify Payments",ingreso:[2800,5600],saldo:9300,primer:true,vinculadas:[{n:"Gil Nutrición SL",r:"Sociedad española 100 % de Nerea Gil; fabrica el producto que vende la LLC",ops:"Compras de mercancía (Part IV, línea 22)"}]},
+ {id:"ramos",g:"m",socio:"Diego Ramos",llc:"Ramos SaaS LLC",estado:"Nuevo México",act:"Software como servicio",naics:"513210",ein:"86-7720145",constit:"18/02/2025",dir:"Rambla Catalunya 88, 08008 Barcelona, España",nif:"46782013H",ref:"RAMOS-001",ventas:"Stripe payout",ingreso:[4100,7400],saldo:15600,primer:false,vinculadas:[{n:"Ramos Tech SL",r:"Sociedad española 100 % de Diego Ramos; es la titular del software",ops:"Canon por licencia del software (Part IV, línea 27)"}]}
+];
+// estado de octubre por cliente: ok / warn / bad
+const OCT_STATE={suarez:"warn",ferrer:"ok",ibanez:"bad",ortega:"ok",gil:"warn",ramos:"bad"};
+
+function genMovs(c,idx){
+  const r=seedRand(idx*97+13); const out=[]; let id=1;
+  const startMonth = c.constit.endsWith(String(YEAR)) ? parseInt(c.constit.split("/")[1])-1 : 0;
+  for(let m=startMonth;m<=CLOSING;m++){
+    if(m===CLOSING && OCT_STATE[c.id]==="bad") continue;
+    const d=n=>String(n).padStart(2,"0")+"/"+String(m+1).padStart(2,"0")+"/"+YEAR;
+    const n=2+Math.floor(r()*2);
+    for(let k=0;k<n;k++){ const a=Math.round(c.ingreso[0]/n+r()*(c.ingreso[1]-c.ingreso[0])/n); out.push({id:id++,m,fecha:d(3+k*9),concepto:c.ventas,importe:a,cat:"ingreso"}); }
+    out.push({id:id++,m,fecha:d(5),concepto:"Shopify subscription",importe:-39,cat:"gasto"});
+    if(r()>.4) out.push({id:id++,m,fecha:d(11),concepto:"Google Ads",importe:-Math.round(80+r()*220),cat:"gasto"});
+    if(r()>.5) out.push({id:id++,m,fecha:d(14),concepto:"Adobe Creative Cloud",importe:-62,cat:"gasto"});
+    if(m%2===1) out.push({id:id++,m,fecha:d(20),concepto:"Transfer to "+c.socio.toUpperCase()+" (Wise)",importe:-Math.round(1800+r()*2200),cat:"retir"});
+  }
+  if(startMonth===0) out.unshift({id:id++,m:0,fecha:"02/01/"+YEAR,concepto:"Incoming transfer "+c.socio.toUpperCase(),importe:2000,cat:"aport"});
+  else out.unshift({id:id++,m:startMonth,fecha:"25/"+String(startMonth+1).padStart(2,"0")+"/"+YEAR,concepto:"Initial deposit "+c.socio.toUpperCase(),importe:1500,cat:"aport"});
+  if(OCT_STATE[c.id]==="warn"){
+    out.push({id:id++,m:CLOSING,fecha:"08/10/"+YEAR,concepto:"Transfer "+c.socio.split(" ")[0].toUpperCase()+" "+c.socio.split(" ").slice(-1)[0].toUpperCase(),importe:-2500,cat:"revisar",nota:"¿Retirada de beneficios o devolución de un préstamo?"});
+    out.push({id:id++,m:CLOSING,fecha:"21/10/"+YEAR,concepto:"ZARA.COM ES",importe:-86,cat:"revisar",nota:"¿Gasto personal pagado con la tarjeta de la LLC?"});
+  }
+  if(c.id==="suarez") out.push({id:id++,m:5,fecha:"17/06/"+YEAR,concepto:"Incoming transfer C A SUAREZ",importe:3000,cat:"revisar",nota:"¿Aportación de capital o préstamo del socio a la LLC?"});
+  if(c.id==="gil"){ for(let m=startMonth;m<=CLOSING;m++){ if(m===CLOSING) continue; out.push({id:id++,m,fecha:"09/"+String(m+1).padStart(2,"0")+"/"+YEAR,concepto:"Transfer to GIL NUTRICION SL - product invoice",importe:-Math.round(900+r()*600),cat:"compra_vinc"}); }
+    out.push({id:id++,m:CLOSING,fecha:"12/10/"+YEAR,concepto:"Transfer to GN SL ref 2026-118",importe:-1340,cat:"revisar",nota:"La IA lo relaciona con Gil Nutrición SL (empresa del socio): ¿compra de producto? Va a un 5472 separado",pregunta:"¿Es el pago de una factura de producto de Gil Nutrición SL?"}); }
+  if(c.id==="ramos"){ for(let m=startMonth;m<CLOSING;m++) out.push({id:id++,m,fecha:"28/"+String(m+1).padStart(2,"0")+"/"+YEAR,concepto:"RAMOS TECH SL software license fee",importe:-350,cat:"canon_vinc"}); }
+  if(c.id==="ortega"){ for(let m=5;m<=CLOSING;m++) out.push({id:id++,m,fecha:"30/"+String(m+1).padStart(2,"0")+"/"+YEAR,concepto:"Interest to PABLO ORTEGA - prestamo",importe:m<8?-25:-15,cat:"int_socio"}); out.push({id:id++,m:4,fecha:"15/05/"+YEAR,concepto:"Incoming transfer PABLO ORTEGA - prestamo",importe:5000,cat:"prest_rec"}); out.push({id:id++,m:8,fecha:"22/09/"+YEAR,concepto:"Transfer to PABLO ORTEGA - devolucion prestamo",importe:-2000,cat:"dev_prest"}); }
+  return out.sort((a,b)=>a.m-b.m||a.fecha.localeCompare(b.fecha));
+}
+function freshData(){
+  return BASE.map((c,i)=>({...c,movs:genMovs(c,i),conformidad:false,
+    alerta: OCT_STATE[c.id]!=="ok" ? {desde:"03/11/"+YEAR,semanas:1} : null,
+    cerrados: Array.from({length:12},(_,m)=> (c.id==="suarez"&&m===5) ? false : m<CLOSING ? true : (m===CLOSING && OCT_STATE[c.id]==="ok"))
+  }));
+}
+let DATA;
+try{ const s=localStorage.getItem("cierre5472.v4"); DATA=s?JSON.parse(s):freshData(); }catch(e){ DATA=freshData(); }
+function save(){ try{localStorage.setItem("cierre5472.v4",JSON.stringify(DATA));}catch(e){} }
+
+// ---------- utilidades ----------
+const $=s=>document.querySelector(s);
+const num=n=>String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g,",");
+const fmt=n=>(n<0?"−":"")+'<span class="cur">$</span>'+num(n);
+const fmtT=n=>(n<0?"−":"")+"$\u202f"+num(n);
+const esc=s=>String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2200);}
+function pend(c){return c.movs.filter(x=>x.cat==="revisar");}
+function startM(c){ return c.constit.endsWith(String(YEAR)) ? parseInt(c.constit.split("/")[1])-1 : 0; }
+function missing(c){ const out=[]; for(let m=startM(c);m<=CLOSING;m++){ if(!c.movs.some(x=>x.m===m)&&!(c.ext&&c.ext[m])) out.push(m); } return out; }
+function octState(c){ if(missing(c).length) return "bad"; if(pend(c).length) return "warn"; for(let m=startM(c);m<=CLOSING;m++){ if(!c.cerrados[m]) return "warn"; } return "ok"; }
+function sumCat(c,cat){return c.movs.filter(x=>x.cat===cat).reduce((s,x)=>s+x.importe,0);}
+function totals(c){
+  const ing=sumCat(c,"ingreso"), gas=sumCat(c,"gasto");
+  const aport=sumCat(c,"aport")+Math.abs(sumCat(c,"llc_socio"));
+  const retir=Math.abs(sumCat(c,"retir"))+Math.abs(sumCat(c,"pers_llc"));
+  const prestRec=Math.max(0,sumCat(c,"prest_rec")+sumCat(c,"dev_prest")), prestDado=Math.abs(sumCat(c,"prest_dado"));
+  const saldo=c.movs.reduce((s,x)=>s+x.importe,0)+ (c.saldoInicial||0);
+  return {ing,gas,aport,retir,prestRec,prestDado,saldo:Math.max(0,saldo)};
+}
+async function copy(text){ try{ await navigator.clipboard.writeText(text); toast("Copiado"); }catch(e){ toast("No se pudo copiar: selecciona el texto y cópialo"); } }
+
+// ---------- navegación ----------
+let VIEW="cierre", CUR=null, TAB="movs", EXTM=CLOSING, MOVM=CLOSING;
+function go(v,id){ VIEW=v; if(id!==undefined) CUR=id; render(); window.scrollTo(0,0); }
+function navHTML(pendTotal){
+  const dot=st=>st==="ok"?"d-ok":st==="warn"?"d-warn":"d-bad";
+  return `<div class="brand"><div class="logo"><span class="ic" aria-hidden="true">5472</span><span class="txt"><span class="bt">Conciliación</span><small>LLC disregarded</small></span></div></div><hr>
+  <button data-view="cierre" aria-current="${VIEW==="cierre"}">Inicio <span class="badge">${pendTotal}</span></button>
+  <div class="sec">LLC</div>
+  ${DATA.map(c=>`<button class="llc" data-nav-llc="${c.id}" aria-current="${VIEW==="ficha"&&CUR===c.id}">${esc(c.llc.replace(/\s*LLC$/i,""))}</button>`).join("")}
+  <div class="demo">Datos de ejemplo. Ningún cliente es real.<br><button class="lnk" id="reset-demo" style="color:inherit;font-weight:500;text-decoration:underline;margin-top:6px">Restablecer la demo</button></div>`;
+}
+
+function render(){
+  const pendTotal=DATA.reduce((s,c)=>s+pend(c).length,0)+DATA.filter(c=>octState(c)==="bad").length;
+  $("#nav").innerHTML=navHTML(pendTotal);
+  const v=$("#view");
+  if(VIEW==="ficha"&&DATA.some(x=>x.id===CUR)) v.innerHTML=viewFicha();
+  else { VIEW="cierre"; v.innerHTML=viewCierre(); }
+  bind();
+}
+
+// ---------- vista: cierre mensual ----------
+function viewCierre(){
+  const groups={bad:[],warn:[],ok:[]}; DATA.forEach(c=>groups[octState(c)].push(c));
+  const nPend=DATA.reduce((t,c)=>t+pend(c).length,0), nMiss=DATA.reduce((t,c)=>t+missing(c).length,0);
+  let oldest=null; DATA.forEach(c=>{pend(c).forEach(x=>{if(oldest===null||x.m<oldest)oldest=x.m;}); missing(c).forEach(m=>{if(oldest===null||m<oldest)oldest=m;});});
+  const today=new Date(); const deadline=new Date(YEAR+1,3,15); const days=Math.max(0,Math.ceil((deadline-today)/86400000));
+  const fecha=today.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const list=(arr,fn)=>arr.length?`<ul class="clist">${arr.map(c=>`<li><button class="lnk" data-open="${c.id}">${esc(c.llc.replace(/\s*LLC$/i,""))}</button> <span class="muted">· ${esc(c.socio)}</span><br>${fn(c)}</li>`).join("")}</ul>`:'<p class="empty">Ninguna LLC en este estado.</p>';
+  const fMiss=c=>{const ms=missing(c).map(m=>MESES_L[m]);const txt=(ms.length===1?"Falta ":"Faltan ")+(ms.length>1?ms.slice(0,-1).join(", ")+" y "+ms.slice(-1):ms[0]);return `<span class="muted">${txt}${c.alerta?" · aviso enviado el "+c.alerta.desde:""}</span>`;};
+  const fRev=c=>{const byM={};pend(c).forEach(x=>{byM[x.m]=(byM[x.m]||0)+1;});const ks=Object.keys(byM).map(Number).sort((x,y)=>x-y);
+    return ks.map((m,i)=>{const lab=MESES_L[m][0].toUpperCase()+MESES_L[m].slice(1)+": "+byM[m];const age=CLOSING-m;return (i===0&&age>=2)?`<span class="old">${lab} · pendiente desde hace ${age} meses</span>`:`<span class="muted">${lab}</span>`;}).join('<span class="muted"> · </span>');};
+  const fOk=c=>`<span class="muted">Todos los meses cerrados hasta ${MESES_L[CLOSING]}</span>`;
+  const col=(k,title,dot,fn)=>`<div class="col"><div class="col-h"><span class="dot ${dot}"></span>${title} <span class="muted">(${groups[k].length})</span></div>${list(groups[k],fn)}</div>`;
+  const pendLLC=groups.bad.length+groups.warn.length;
+  return `<div class="head"><div><h1>Estado de la cartera LLC</h1><p class="sub">${fecha[0].toUpperCase()+fecha.slice(1)} · ${days} días para el 5472 (15 de abril de ${YEAR+1})</p></div></div>
+  ${pendLLC?`<div class="alertrow"><div class="alert"><span><b>${pendLLC} LLC con pendientes</b> · ${nMiss} extracto${nMiss===1?"":"s"} sin recibir y ${nPend} movimiento${nPend===1?"":"s"} por aclarar.${oldest!==null?" El más antiguo es de "+MESES_L[oldest]+".":""}</span></div><button class="btn primary" id="remind">Enviar recordatorios</button></div>`:`<div class="alert" style="background:var(--ok-soft)"><span><b>Todo al día:</b> no hay extractos ni movimientos pendientes.</span></div>`}
+  <div class="board">${col("bad","Falta extracto","d-bad",fMiss)}${col("warn","Por revisar","d-warn",fRev)}${col("ok","Al día","d-ok",fOk)}</div>`;
+}
+
+// ---------- vista: clientes ----------
+function viewClientes(){
+  const rows=DATA.map(c=>{const st=octState(c);const t=totals(c);const closed=c.cerrados.filter(Boolean).length;
+    return `<tr><td><button class="lnk" data-open="${c.id}">${esc(c.socio)}</button></td><td>${esc(c.llc)}</td><td>${esc(c.estado)}</td>
+    <td>${st==="ok"?'<span class="pill p-ok">Cerrado</span>':st==="warn"?'<span class="pill p-warn">'+pend(c).length+' por revisar</span>':'<span class="pill p-bad">Sin extracto</span>'}</td>
+    <td class="num">${fmt(t.ing)}</td><td class="num">${closed}/12</td><td>${c.conformidad?'<span class="pill p-ok">Conforme</span>':'<span class="pill p-neu">Pendiente</span>'}</td></tr>`;}).join("");
+  return `<div class="head"><div><h1>Clientes LLC</h1><p class="sub">LLC unipersonales (disregarded) de socios no residentes, sin ECI.</p></div></div>
+  <div class="panel tw"><table><thead><tr><th>Socio</th><th>LLC</th><th>Estado</th><th>${MESES[CLOSING]}</th><th style="text-align:right">Ingresos ${YEAR}</th><th style="text-align:right">Meses cerrados</th><th>5472</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+// ---------- vista: ficha ----------
+function vincTotals(c,who){
+  const sum=cats=>Math.abs(c.movs.filter(x=>cats.includes(x.cat)).reduce((t,x)=>t+x.importe,0));
+  const L=who==="socio"
+    ? [["Aportaciones (Part V)",sum(["aport","llc_socio"])],["Retiradas (Part V)",sum(["retir","pers_llc"])],["Préstamo: saldo final (Part IV, línea 17)",Math.max(0,c.movs.filter(x=>["prest_rec","dev_prest"].includes(x.cat)).reduce((t,x)=>t+x.importe,0))],["Intereses pagados (Part IV, línea 32)",sum(["int_socio"])],["Alquiler pagado (Part IV, línea 26)",sum(["alq_socio"])]]
+    : [["Ventas de mercancía (Part IV, línea 9)",sum(["venta_vinc"])],["Compras de mercancía (Part IV, línea 22)",sum(["compra_vinc"])],["Servicios pagados (Part IV, línea 29)",sum(["serv_vinc"])],["Cánones y licencias (Part IV, línea 27)",sum(["canon_vinc"])]];
+  const items=L.filter(([,v])=>v>0);
+  const pendV=who==="vinc"?c.movs.filter(x=>x.cat==="revisar"&&/gn sl|gil nutricion|ramos tech/i.test(x.concepto)):[];
+  return `<ul style="margin:0;padding-left:18px">${items.map(([k,v])=>`<li>${k}: <b class="num" style="font-family:var(--mono)">${fmt(v)}</b></li>`).join("")||"<li>Sin operaciones</li>"}${pendV.length?`<li class="muted">Pendiente de confirmar: ${pendV.map(x=>fmt(Math.abs(x.importe))).join(", ")} (en «Por revisar»)</li>`:""}</ul>`;
+}
+function viewFicha(){
+  const c=DATA.find(x=>x.id===CUR); if(!c) return viewCierre();
+  const t=totals(c), st=octState(c);
+  const sumM=(m,cats)=>c.movs.filter(x=>x.m===m&&cats.includes(x.cat)).reduce((s,x)=>s+x.importe,0);
+  let TA=0,TR=0,TP=0,TN=0,TO=0;
+  const lab=m=>{const e=extInfo(c,m);const p=c.movs.filter(x=>x.m===m&&x.cat==="revisar").length;
+    if(m>CLOSING&&!e) return '<span class="muted">Se envía del 1 al 5 de '+(m===11?'enero de '+(YEAR+1):MESES_L[m+1])+'</span>';
+    if(!e) return m===CLOSING?'<span class="pill p-bad">Falta extracto</span>':'<span class="muted">Sin actividad</span>';
+    if(p) return '<span class="pill p-warn">'+p+' por revisar</span>';
+    return c.cerrados[m]?'<span class="pill p-ok">Cerrado</span>':'<span class="pill p-neu">Pendiente de cierre</span>';};
+  const rows=MESES.map((mm,m)=>{const e=extInfo(c,m);const n=c.movs.filter(x=>x.m===m).length;
+    const a=sumM(m,["aport"])+Math.abs(sumM(m,["llc_socio"])), r=Math.abs(sumM(m,["retir","pers_llc"])), pr=sumM(m,["prest_rec","dev_prest"]), o=Math.abs(sumM(m,["int_socio","compra_vinc","venta_vinc","serv_vinc","alq_socio","canon_vinc"]));
+    TA+=a;TR+=r;TP+=pr;TN+=n;TO+=o;
+    const ML=MESES_L[m][0].toUpperCase()+MESES_L[m].slice(1);
+    return `<tr class="${m===MOVM?"sel":""}"><td><button class="mbtn" data-movm="${m}" aria-pressed="${m===MOVM}">${ML}</button></td><td class="muted">${e?esc(e.recibido):"—"}</td><td class="num">${n||"—"}</td><td class="num">${a?fmt(a):"—"}</td><td class="num">${r?fmt(r):"—"}</td><td class="num">${pr?fmt(pr):"—"}</td><td class="num">${o?fmt(o):"—"}</td><td>${lab(m)}</td></tr>`;}).join("");
+  const closedN=c.cerrados.filter(Boolean).length;
+  const mi=missing(c).map(m=>MESES_L[m]);
+  const badge=st==="ok"?'<span class="pill p-ok">Al día</span>':st==="warn"?(pend(c).length?'<span class="pill p-warn">'+pend(c).length+(pend(c).length===1?' movimiento por revisar':' movimientos por revisar')+'</span>':'<span class="pill p-warn">Meses sin cerrar</span>'):'<span class="pill p-bad">Falta extracto de '+mi.join(", ")+'</span>'+(pend(c).length?' <span class="pill p-warn">'+pend(c).length+(pend(c).length===1?' movimiento por revisar':' movimientos por revisar')+'</span>':'');
+  return `<div class="head"><div><h1 style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">${esc(c.llc)} <span style="display:inline-flex;align-items:center;gap:6px;align-self:center;line-height:1">${badge.replace(/class="pill/g,'style="font:600 12px/1.5 var(--body);display:inline-flex;align-items:center;padding:2px 9px" class="pill')}</span></h1><p class="sub">${esc(c.socio)} · ${esc(c.act)} · ${esc(c.estado)}</p></div></div>
+  <div class="tiles">
+    <div class="tile"><div class="k">Meses cerrados ${YEAR}</div><div class="v">${closedN}/12</div></div>
+    <div class="tile"><div class="k">Aportaciones del socio</div><div class="v">${fmt(t.aport)}</div></div>
+    <div class="tile"><div class="k">Retiradas al socio</div><div class="v">${fmt(t.retir)}</div></div>
+    <div class="tile"><div class="k">Saldo préstamo del socio</div><div class="v">${fmt(t.prestRec)}</div></div>
+  </div>
+  ${(c.vinculadas&&c.vinculadas.length)?`<div class="panel" style="border-color:var(--accent)"><h3>Otra parte vinculada: ${c.vinculadas.length} Form 5472 adicional</h3><p class="src">La LLC opera también con una sociedad del socio. Lleva su propio 5472, además del del socio, dentro del mismo 1120 pro forma.</p><div class="tw"><table><thead><tr><th>Parte vinculada</th><th>Relación</th><th>Total ${YEAR} para su 5472</th></tr></thead><tbody>${c.vinculadas.map(v=>`<tr><td><b>${esc(v.n)}</b></td><td>${esc(v.r)}</td><td>${vincTotals(c,"vinc")}</td></tr>`).join("")}</tbody></table></div></div>`:""}
+  <div class="panel"><div class="toolbar" style="justify-content:space-between"><h3>Histórico de meses · ${YEAR}</h3><span class="src">Pulsa un mes para ver su extracto y sus movimientos.</span></div>
+  <div class="tw"><table><thead><tr><th>Mes</th><th>Extracto recibido</th><th style="text-align:right">Movimientos</th><th style="text-align:right">Aportaciones</th><th style="text-align:right">Retiradas</th><th style="text-align:right">Préstamo socio</th><th style="text-align:right">Otras Part IV</th><th>Estado</th></tr></thead>
+  <tbody>${rows}<tr class="tot"><td>Total ${YEAR}</td><td></td><td class="num">${TN}</td><td class="num">${fmt(TA)}</td><td class="num">${fmt(TR)}</td><td class="num">${TP?fmt(TP):"—"}</td><td class="num">${TO?fmt(TO):"—"}</td><td class="muted">Lo que irá al 5472</td></tr></tbody></table></div></div>
+  ${tabMes(c)}
+  <details class="ins"><summary><span>Datos de la LLC y del socio</span><span class="muted" style="font-weight:400">EIN, NIF, dirección y obligaciones</span></summary><div style="padding:12px 14px">${tabDatos(c)}</div></details>`;
+}
+function monthState(c,m){
+  const ms=c.movs.filter(x=>x.m===m);
+  if(!ms.length) return m>CLOSING?"future":(m===CLOSING?"bad":"none");
+  if(ms.some(x=>x.cat==="revisar")) return "warn";
+  return c.cerrados[m]?"ok":"open";
+}
+function tabMovs(c){
+  const M=MOVM; const all=c.movs.filter(x=>x.m===M);
+  const p=all.filter(x=>x.cat==="revisar"); const optionList=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v.t}</option>`).join("");
+  const lab={ok:"Cerrado",warn:"Por revisar",bad:"Falta extracto",open:"Sin cerrar",none:"Sin actividad",future:"Pendiente"};
+  const chips=MESES.map((mm,i)=>{const s=monthState(c,i);const cls=s==="ok"?"ok":s==="warn"?"warn":s==="bad"?"bad":"";const n=c.movs.filter(x=>x.m===i&&x.cat==="revisar").length;
+    return `<button class="m ${cls}" data-movm="${i}" aria-pressed="${i===M}" title="${lab[s]}" style="cursor:pointer;${i===M?"outline:2px solid var(--accent);outline-offset:1px;font-weight:700":""}">${mm}${n?" · "+n:""}</button>`;}).join("");
+  const st=monthState(c,M);
+  const ML=MESES_L[M][0].toUpperCase()+MESES_L[M].slice(1);
+  const rows=all.slice().reverse().map(x=>`<tr class="${x.cat==="revisar"?"rev":""}"><td class="num" style="text-align:left">${x.fecha}</td><td>${esc(x.concepto)}${x.nota?'<br><span class="muted" style="font-size:12px">'+esc(x.nota)+'</span>':''}</td><td class="num ${x.importe<0?"neg":"pos"}">${fmt(x.importe)}</td>
+  <td><select class="cls" id="cls-${c.id}-${x.id}" data-mov="${x.id}" aria-label="Clasificación">${optionList.replace(`value="${x.cat}"`,`value="${x.cat}" selected`)}</select></td><td class="muted" style="font-size:12px">${CATS[x.cat].f}</td></tr>`).join("");
+  const msg=p.length?`Hola ${c.socio.split(" ")[0]}, para cerrar ${MESES_L[M]} en tu LLC necesitamos que nos aclares estos movimientos:\n\n`+p.map(x=>`• ${x.fecha} · ${x.concepto} · ${fmtT(x.importe)}${(x.pregunta||x.nota)?" → "+(x.pregunta||x.nota):""}`).join("\n")+`\n\nCon tu respuesta lo dejamos cerrado. ¡Gracias!`:"";
+  return `${p.length?`<div class="panel"><div class="toolbar" style="justify-content:space-between"><h3>Mensaje para el cliente (${p.length} pendiente${p.length===1?"":"s"})</h3><button class="btn" id="copy-msg">Copiar mensaje</button></div><textarea class="msg" id="msg" readonly>${esc(msg)}</textarea><p class="src">Cuando el cliente conteste, cambia la clasificación de cada movimiento. La alerta semanal sigue activa mientras quede alguno en «Revisar».</p></div>`:""}
+  <div class="panel"><div class="toolbar" style="justify-content:space-between"><h3>Movimientos por mes · ${YEAR}</h3><span class="src">Pulsa un mes para ver, subir o cerrar su extracto.</span></div>
+    <div class="months">${chips}</div></div>
+  <div class="panel"><div class="toolbar" style="justify-content:space-between"><div><h3>${ML} ${YEAR}</h3><p class="sub">${lab[st]}${all.length?" · "+all.length+" movimientos":""}${M>CLOSING?" · el extracto se envía del 1 al 5 del mes siguiente":""}</p></div>
+    <div class="toolbar"><label class="btn" for="csv">Subir extracto de ${MESES_L[M]}</label><input type="file" id="csv" accept=".csv,.pdf,text/csv,application/pdf" hidden><button class="btn primary" id="close-month" ${p.length||!all.length||c.cerrados[M]?"disabled":""}>${c.cerrados[M]?ML+" cerrado":"Cerrar "+MESES_L[M]}</button></div></div>
+    <p class="src">Al subir el extracto, los movimientos se clasifican automáticamente: ventas de las plataformas, gastos habituales y transferencias ya conocidas. Lo que no está claro queda en «Revisar». En la versión real, Claude leería directamente el PDF del banco; en este prototipo se sube en CSV (fecha;concepto;importe).</p>
+    ${all.length?`<div class="tw"><table><thead><tr><th>Fecha</th><th>Concepto</th><th style="text-align:right">Importe</th><th>Clasificación</th><th>Va al 5472</th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="empty">${M>CLOSING?"Este mes todavía no ha terminado.":"No hay movimientos de este mes."} Sube el extracto para clasificarlo.</p>`}</div>`;
+}
+function extInfo(c,m){
+  if(c.ext&&c.ext[m]) return c.ext[m];
+  if(!c.movs.some(x=>x.m===m)) return null;
+  const nm=m+2>12?1:m+2, ny=m+2>12?YEAR+1:YEAR;
+  return {archivo:c.id+"_extracto_"+YEAR+"-"+String(m+1).padStart(2,"0")+".pdf",recibido:"0"+(2+(m%3))+"/"+String(nm).padStart(2,"0")+"/"+ny};
+}
+function tabExt(c){
+  const rows=MESES.map((mm,m)=>{
+    const e=extInfo(c,m); const ms=c.movs.filter(x=>x.m===m); const p=ms.filter(x=>x.cat==="revisar").length;
+    let estado;
+    if(m>CLOSING) estado='<span class="muted">Se envía del 1 al 5 de '+(m===11?'enero de '+(YEAR+1):MESES_L[m+1])+'</span>';
+    else if(!e) estado= m===CLOSING?'<span class="pill p-bad">Falta · vencía el 05/'+String(m+2).padStart(2,"0")+'</span>':'<span class="muted">Sin actividad</span>';
+    else if(p) estado='<span class="pill p-warn">'+p+' por revisar</span>';
+    else if(c.cerrados[m]) estado='<span class="pill p-ok">Cerrado</span>';
+    else estado='<span class="pill p-neu">Pendiente de cierre</span>';
+    const cls=(m===CLOSING&&!e)?"bad":p?"warn":(e&&c.cerrados[m])?"ok":"";
+    return {m,estado,chip:`<button class="m ${cls}" data-extm="${m}" aria-pressed="${m===EXTM}" style="cursor:pointer;${m===EXTM?"outline:2px solid var(--accent);outline-offset:1px;font-weight:700":""}">${mm}</button>`};
+  });
+  const chips=rows.map(r=>r.chip).join(""), estadoSel=rows[EXTM].estado;
+  const e=extInfo(c,EXTM); const ms=c.movs.filter(x=>x.m===EXTM);
+  const ent=ms.filter(x=>x.importe>0).reduce((s,x)=>s+x.importe,0), sal=ms.filter(x=>x.importe<0).reduce((s,x)=>s+x.importe,0);
+  const pillFor=x=>x.cat==="revisar"?'<span class="pill p-warn">Revisar</span>':['aport','retir','prest_rec','prest_dado','pers_llc','llc_socio'].includes(x.cat)?'<span class="pill p-neu">'+CATS[x.cat].t+'</span>':'<span class="pill p-ok">'+CATS[x.cat].t+'</span>';
+  const detail = e ? `<div class="panel"><div class="toolbar" style="justify-content:space-between"><div><h3>Extracto de ${MESES_L[EXTM]} ${YEAR}</h3><p class="sub">${esc(e.archivo)} · recibido el ${esc(e.recibido)} · ${estadoSel}</p></div><div class="toolbar">${c.cerrados[EXTM]?"":`<label class="btn" for="csv-ext">Subir extracto de ${MESES_L[EXTM]}</label><input type="file" id="csv-ext" accept=".csv,.pdf,text/csv,application/pdf" hidden>`}<button class="btn" data-tab="movs">Clasificar en Movimientos</button></div></div>
+    <div class="tiles"><div class="tile"><div class="k">Entradas</div><div class="v pos">${fmt(ent)}</div></div><div class="tile"><div class="k">Salidas</div><div class="v neg">${fmt(sal)}</div></div><div class="tile"><div class="k">Neto del mes</div><div class="v">${fmt(ent+sal)}</div></div><div class="tile"><div class="k">Movimientos</div><div class="v">${ms.length}</div></div></div>
+    <div class="tw"><table><thead><tr><th>Fecha</th><th>Concepto</th><th style="text-align:right">Importe</th><th>Clasificación</th></tr></thead><tbody>${ms.map(x=>`<tr class="${x.cat==="revisar"?"rev":""}"><td class="num" style="text-align:left">${x.fecha}</td><td>${esc(x.concepto)}</td><td class="num ${x.importe<0?"neg":"pos"}">${fmt(x.importe)}</td><td>${pillFor(x)}</td></tr>`).join("")}</tbody></table></div></div>`
+    : `<div class="panel"><h3>Extracto de ${MESES_L[EXTM]} ${YEAR}</h3><p class="sub">${estadoSel}</p><p class="empty">No hay extracto para este mes.${EXTM===CLOSING?" El cliente todavía no lo ha enviado: está incluido en la alerta semanal.":""}</p><div class="toolbar"><label class="btn primary" for="csv-ext">Subir extracto de ${MESES_L[EXTM]}</label><input type="file" id="csv-ext" accept=".csv,.pdf,text/csv,application/pdf" hidden></div></div>`;
+  return `<div class="panel"><div class="toolbar" style="justify-content:space-between"><h3>Extractos · ${YEAR}</h3><span class="src">Un extracto por mes, recibido entre el día 1 y el 5 del mes siguiente. Pulsa un mes para verlo.</span></div>
+  <div class="months">${chips}</div></div>${detail}`;
+}
+function destino(cat){return ({ingreso:"No va al 5472",gasto:"No va al 5472",aport:"5472 · Part V (aportación)",retir:"5472 · Part V (retirada)",pers_llc:"5472 · Part V (retirada)",llc_socio:"5472 · Part V (aportación)",prest_rec:"5472 · Part IV, línea 17 (suma al saldo)",dev_prest:"5472 · Part IV, línea 17 (resta del saldo)",prest_dado:"5472 · Part IV, línea 31",int_socio:"5472 · Part IV, línea 32",compra_vinc:"5472 de la vinculada · Part IV, línea 22",venta_vinc:"5472 de la vinculada · Part IV, línea 9",serv_vinc:"5472 de la vinculada · Part IV, línea 29",alq_socio:"5472 · Part IV, línea 26",canon_vinc:"5472 de la vinculada · Part IV, línea 27",revisar:"Pendiente"})[cat];}
+function estadoMes(c,m){
+  const e=extInfo(c,m); const p=c.movs.filter(x=>x.m===m&&x.cat==="revisar").length;
+  if(m>CLOSING&&!e) return 'Se envía del 1 al 5 de '+(m===11?'enero de '+(YEAR+1):MESES_L[m+1]);
+  if(!e) return m===CLOSING?'Falta · vencía el 05/'+String(m+2).padStart(2,"0"):'Sin actividad';
+  if(p) return p+' por revisar';
+  return c.cerrados[m]?'Cerrado':'Pendiente de cierre';
+}
+function tabMes(c){
+  const M=MOVM; const all=c.movs.filter(x=>x.m===M); const p=all.filter(x=>x.cat==="revisar"); const auto=all.filter(x=>x.cat!=="revisar");
+  const optionList=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v.t}</option>`).join("");
+  const sel=x=>`<select class="cls" id="cls-${c.id}-${x.id}" data-mov="${x.id}" aria-label="Clasificación">${optionList.replace(`value="${x.cat}"`,`value="${x.cat}" selected`)}</select>`;
+  const chips=MESES.map((mm,i)=>{const s=monthState(c,i);const cls=s==="ok"?"ok":s==="warn"?"warn":s==="bad"?"bad":"";const n=c.movs.filter(x=>x.m===i&&x.cat==="revisar").length;
+    return `<button class="m ${cls}" data-movm="${i}" aria-pressed="${i===M}" style="cursor:pointer;${i===M?"outline:2px solid var(--accent);outline-offset:1px;font-weight:700":""}">${mm}${n?" · "+n:""}</button>`;}).join("");
+  const e=extInfo(c,M); const ML=MESES_L[M][0].toUpperCase()+MESES_L[M].slice(1);
+  const ent=all.filter(x=>x.importe>0).reduce((s,x)=>s+x.importe,0), sal=all.filter(x=>x.importe<0).reduce((s,x)=>s+x.importe,0);
+  const up=c.cerrados[M]?"":`<label class="btn${e?"":" primary"}" for="csv">${e?"Volver a subir":"Subir extracto de "+MESES_L[M]}</label><input type="file" id="csv" accept=".csv,.pdf,text/csv,application/pdf" hidden>`;
+  const closeBtn=e?`<button class="btn primary" id="close-month" ${p.length||c.cerrados[M]?"disabled":""}>${c.cerrados[M]?ML+" cerrado":"Cerrar "+MESES_L[M]}</button>`:"";
+  const row=(x,withSel)=>`<tr class="${x.cat==="revisar"?"rev":""}"><td class="num" style="text-align:left">${x.fecha}</td><td>${esc(x.concepto)}${x.nota?'<br><span class="muted" style="font-size:12px">'+esc(x.nota)+'</span>':''}</td><td class="num ${x.importe<0?"neg":"pos"}">${fmt(x.importe)}</td><td>${withSel?sel(x):'<span class="pill '+(x.cat==="gasto"?"p-bad":destino(x.cat).startsWith("5472")?"p-soc":"p-ok")+'">'+CATS[x.cat].t+'</span>'}</td><td class="muted" style="font-size:12.5px">${destino(x.cat)}</td></tr>`;
+  const thead='<thead><tr><th>Fecha</th><th>Concepto</th><th style="text-align:right">Importe</th><th>Clasificación</th><th>Dónde va</th></tr></thead>';
+  const msg=p.length?`Hola ${c.socio.split(" ")[0]}, para cerrar ${MESES_L[M]} en tu LLC necesitamos que nos aclares estos movimientos:\n\n`+p.map(x=>`• ${x.fecha} · ${x.concepto} · ${fmtT(x.importe)}${(x.pregunta||x.nota)?" → "+(x.pregunta||x.nota):""}`).join("\n")+`\n\nCon tu respuesta lo dejamos cerrado. ¡Gracias!`:"";
+  let body;
+  if(!e){ body=`<div class="panel"><p class="empty">No hay extracto de ${MESES_L[M]}.${M===CLOSING?" El cliente todavía no lo ha enviado y está incluido en la alerta semanal.":""}</p>${M<=CLOSING?`<div class="toolbar"><button class="btn primary" id="demo-up">Subir extracto de ${MESES_L[M]}</button><label class="btn" for="csv">Elegir otro archivo (PDF o CSV)</label><input type="file" id="csv" accept=".csv,.pdf,text/csv,application/pdf" hidden></div><p class="src">Demostración: el botón principal sube un extracto ficticio en PDF${c.id==="ibanez"&&M===CLOSING?' (<a href="#" id="ver-pdf">ver el PDF</a>)':''} y muestra cómo la IA lo clasifica.</p>`:`<div class="toolbar">${up}</div>`}</div>`; }
+  else body=`<div class="tiles"><div class="tile"><div class="k">Entradas</div><div class="v pos">${fmt(ent)}</div></div><div class="tile"><div class="k">Salidas</div><div class="v neg">${fmt(sal)}</div></div><div class="tile"><div class="k">Clasificados automáticamente</div><div class="v">${auto.length}</div></div><div class="tile"><div class="k">Por revisar</div><div class="v" style="color:${p.length?"var(--warn)":"var(--ok)"}">${p.length}</div></div></div>
+  <div class="panel"><h3>Por revisar</h3>${p.length?`<p class="src">Solo los movimientos que la clasificación automática no ha podido resolver. Cuando el cliente conteste, elige la clasificación correcta.</p><div class="tw"><table>${thead}<tbody>${p.map(x=>row(x,true)).join("")}</tbody></table></div>
+    <div class="toolbar" style="justify-content:space-between"><h3>Mensaje para el cliente</h3><button class="btn" id="copy-msg">Copiar mensaje</button></div><textarea class="msg" id="msg" readonly>${esc(msg)}</textarea>`:`<p class="empty">No queda nada por revisar en ${MESES_L[M]}.</p>`}</div>
+  <details class="ins"><summary><span>Clasificados automáticamente (${auto.length})</span><span class="muted" style="font-weight:400">Consulta y corrección si ves un error</span></summary><div class="tw"><table>${thead}<tbody>${auto.map(x=>row(x,false)).join("")}</tbody></table></div><div class="toolbar" style="padding:10px 14px"><span class="src">¿Alguno mal clasificado?</span><button class="btn" id="edit-auto">Corregir clasificaciones</button></div></details>`;
+  return `<div class="panel" id="month-detail"><div class="toolbar" style="justify-content:space-between"><div><h3>${ML} ${YEAR}</h3><p class="sub">${e?esc(e.archivo)+" · recibido el "+esc(e.recibido)+" · ":""}${estadoMes(c,M)}</p></div><div class="toolbar">${e?up:""}${closeBtn}</div></div>
+  <p class="src">Al subir el extracto, la IA clasifica cada movimiento: ventas, gastos habituales y movimientos con el socio que ya se aclararon antes. Lo que no tiene claro lo deja en «Por revisar». Se puede subir el PDF del banco o un CSV. En este prototipo, la lectura del PDF se simula con movimientos de ejemplo; el CSV (fecha;concepto;importe) se lee de verdad.</p></div>
+  ${body}`;
+}
+function checks5472(c){
+  const t=totals(c);
+  return [
+    [pend(c).length===0,"No quedan movimientos en «Revisar»"],
+    [c.cerrados.every(Boolean),"Ejercicio completo cerrado, de enero a diciembre (se cierra diciembre en enero de "+(YEAR+1)+")"],
+    [/^\d{2}-\d{7}$/.test(c.ein),"El EIN tiene formato válido (00-0000000) y coincide con la carta CP 575"],
+    [true,"Línea 3 marcada: foreign-owned U.S. DE"],
+    [!!c.ref && c.ref.length<=50 && /^[A-Za-z0-9-]+$/.test(c.ref),"Reference ID alfanumérico, de 50 caracteres como máximo, igual cada año"],
+    [t.saldo>0,"Total de activos informado (saldo a 31 de diciembre)"],
+    [c.conformidad,"Conformidad del cliente con los datos"]
+  ];
+}
+function fcell(line,label,val){return `<div class="fc"><div class="l"><b>${line}</b>${label}</div><div class="val">${val}</div></div>`;}
+const ACT_EN={suarez:"Online sale of original artwork",ferrer:"Web design services for U.S. clients",ibanez:"Online coaching and training",ortega:"Digital marketing agency",gil:"E-commerce of dietary supplements (Shopify)",ramos:"Software as a service (SaaS)"};
+const STMT_EN={aport:"Capital contribution from owner",retir:"Distribution to owner",pers_llc:"Personal expense of owner paid by LLC (distribution)",llc_socio:"LLC expense paid by owner (contribution)"};
+const usDate=d=>{const p=String(d).split("/");return p.length===3?p[1]+"/"+p[0]+"/"+p[2]:d;};
+const addrEn=c=>esc(c.dir.replace(/España/g,"Spain"));
+const raAddr=c=>"c/o Registered Agent, "+esc(c.estado==="Nuevo México"?"New Mexico":c.estado)+", USA";
+const stateEn=s=>s==="Nuevo México"?"New Mexico":s;
+function tab5472(c){
+  const t=totals(c); const partIV=t.prestRec+t.prestDado; const partV=t.aport+t.retir; const f1=partIV+partV;
+  const ck=checks5472(c); const ok=ck.every(x=>x[0]);
+  const vStmt=[];
+  c.movs.filter(x=>["aport","retir","pers_llc","llc_socio"].includes(x.cat)).forEach(x=>vStmt.push(`${usDate(x.fecha)} · ${STMT_EN[x.cat]} · ${fmt(Math.abs(x.importe))}`));
+  const yearOpen=!c.cerrados.every(Boolean); const lastClosed=c.cerrados.lastIndexOf(true);
+  return `${yearOpen?`<div class="alert"><span><b>Vista previa provisional.</b> El 5472 de ${YEAR} cubre el ejercicio completo: se podrá generar y presentar a partir de enero de ${YEAR+1}, cuando esté cerrado el extracto de diciembre. Ahora muestra los datos hasta ${lastClosed>=0?MESES_L[lastClosed]:"hoy"}.</span></div>`:""}<div class="grid2">
+  <div class="panel"><h3>Validación antes de presentar</h3><ul class="checks">${ck.map(([y,txt])=>`<li><span class="ico ${y?"y":"n"}">${y?"✓":"!"}</span>${txt}</li>`).join("")}</ul>
+  <div class="toolbar"><button class="btn ${c.conformidad?"":"primary"}" id="conf" ${c.cerrados.every(Boolean)?"":"disabled title='Disponible cuando esté cerrado diciembre'"}>${c.conformidad?"Quitar conformidad":"Registrar conformidad del cliente"}</button><span class="pill ${ok?"p-ok":"p-warn"}">${ok?"Listo para presentar":"Aún no se puede presentar"}</span></div></div>
+  <div class="panel"><h3>Presentación</h3><dl class="kv"><dt>Con</dt><dd>1120 pro forma (pestaña siguiente)</dd><dt>Plazo</dt><dd>15/04/${YEAR+1} · prórroga con 7004 hasta 15/10/${YEAR+1}</dd><dt>Vía</dt><dd>Fax 855-887-7737 o correo a Ogden (UT). No admite presentación electrónica</dd><dt>Sanción</dt><dd>25.000 $ por no presentar o presentar sustancialmente incompleto</dd></dl></div></div>
+  <div class="form" role="region" aria-label="Borrador del Form 5472">
+    <div class="form-h"><div class="fno"><small>Form</small>5472</div><div class="ft">Information Return of a 25% Foreign-Owned U.S. Corporation or a Foreign Corporation Engaged in a U.S. Trade or Business<br><span class="muted" style="font-weight:400">${c.cerrados.every(Boolean)?"Final draft":"Provisional preview"} · tax year ${YEAR}</span></div></div>
+    <div class="fs">Part I — Reporting Corporation</div>
+    <div class="fr">${fcell("1a","Name and address",esc(c.llc)+" · "+raAddr(c))}${fcell("1b","EIN",esc(c.ein))}${fcell("1c","Total assets",fmt(t.saldo))}</div>
+    <div class="fr">${fcell("1d/1e","Principal business activity / code",esc(ACT_EN[c.id]||c.act)+" · "+c.naics)}${fcell("1f","Total value of foreign related party transactions",fmt(f1))}${fcell("1g/1h","Number of Forms 5472 / total value","1 · "+fmt(f1))}</div>
+    <div class="fr">${fcell("1j","First year 5472",c.primer?"☒ Yes":"☐ No")}${fcell("1l–1n","Country of incorporation · date · tax residence","United States · "+usDate(c.constit)+" · United States")}${fcell("1o","Principal country(ies) of business","Spain")}</div>
+    <div class="fr">${fcell("3","Foreign-owned U.S. DE","☒")}</div>
+    <div class="fs">Part II — 25% Foreign Shareholder</div>
+    <div class="fr">${fcell("4a","Name and address",esc(c.socio)+" · "+addrEn(c))}${fcell("4b(1)/4b(2)","U.S. identifying number / Reference ID","None · "+esc(c.ref))}${fcell("4b(3)","FTIN",esc(c.nif))}</div>
+    <div class="fr">${fcell("4c","Principal country(ies) of business","Spain")}${fcell("4d/4e","Citizenship · tax residence","Spain · Spain")}</div>
+    <div class="fs">Part III — Related Party</div>
+    <div class="fr">${fcell("8a","Name and address",esc(c.socio)+" · "+addrEn(c))}${fcell("8b","U.S. ID / Reference ID","None · "+esc(c.ref))}${fcell("8e","Relationship","☒ 25% foreign shareholder")}</div>
+    <div class="fs">Part IV — Monetary Transactions</div>
+    <div class="fr">${fcell("17","Amounts borrowed",t.prestRec?fmt(t.prestRec):"—")}${fcell("22","Total amounts received",fmt(t.prestRec))}</div>
+    <div class="fr">${fcell("31","Amounts loaned",t.prestDado?fmt(t.prestDado):"—")}${fcell("36","Total amounts paid",fmt(t.prestDado))}</div>
+    <div class="fs">Part V — Reportable Transactions of a Foreign-Owned U.S. DE</div>
+    <div class="fr">${fcell("V","☒ See attached statement","Contributions "+fmt(t.aport)+" · Distributions "+fmt(t.retir))}</div>
+    <div class="fr"><div class="fc"><div class="l"><b>Part V</b>Attached statement</div><div class="val" style="font-size:12.5px">${vStmt.map(esc).join("<br>")||"—"}</div></div></div>
+    <div class="fs">Part VII — Additional Information</div>
+    <div class="fr">${fcell("40a–42b","267A · FDII · safe-haven loans","No · No · No")}${fcell("43a–43b","Base erosion payments","Not applicable (foreign-owned U.S. DE)")}</div>
+  </div>
+  <div class="toolbar"><button class="btn" id="copy-5472">Copiar resumen del 5472</button></div>`;
+}
+function tab1120(c){
+  const t=totals(c);
+  return `${c.cerrados.every(Boolean)?"":`<div class="alert"><span><b>Vista previa provisional.</b> El 1120 pro forma se presenta junto con el 5472, a partir de enero de ${YEAR+1}, cuando esté cerrado todo el ejercicio.</span></div>`}<div class="form" role="region" aria-label="Borrador del 1120 pro forma">
+    <div class="form-h"><div class="fno"><small>Form</small>1120</div><div class="ft">U.S. Corporation Income Tax Return — pro forma<br><span class="muted" style="font-weight:400">Foreign-owned U.S. DE · tax year ${YEAR}</span></div></div>
+    <div class="fs">Top of form: FOREIGN-OWNED U.S. DE</div>
+    <div class="fr">${fcell("Name","Name of corporation",esc(c.llc))}${fcell("B","Employer identification number",esc(c.ein))}</div>
+    <div class="fr">${fcell("Address","Number, street · city, state, ZIP",raAddr(c))}${fcell("E","Initial / final / name change / address change",c.primer?"☒ Initial return":"☐")}</div>
+    <div class="fr">${fcell("C","Date incorporated",usDate(c.constit))}${fcell("D","Total assets",fmt(t.saldo))}</div>
+    <div class="fs">Lines 1–35</div>
+    <div class="fr">${fcell("1–35","Income, deductions, tax","Blank")}${fcell("Sign","Officer signature · title",esc(c.socio)+" · Owner")}</div>
+    <div class="fs">Attachment</div>
+    <div class="fr">${fcell("+","Form 5472","Attached")}</div>
+  </div>
+  <div class="panel"><dl class="kv"><dt>Fax</dt><dd>855-887-7737 (300 ppp o más)</dd><dt>Correo</dt><dd>Internal Revenue Service, 1973 Rulon White Blvd, M/S 6112, Attn: PIN Unit, Ogden, UT 84201</dd><dt>Prórroga</dt><dd>Form 7004 con «Foreign-owned U.S. DE» escrito arriba, al mismo fax o dirección, antes del 15/04</dd></dl></div>`;
+}
+function tabDatos(c){
+  return `<div class="grid2"><div class="panel"><h3>LLC</h3><dl class="kv"><dt>Nombre</dt><dd>${esc(c.llc)}</dd><dt>Estado</dt><dd>${esc(c.estado)}</dd><dt>EIN</dt><dd>${esc(c.ein)}</dd><dt>Constitución</dt><dd>${c.constit}</dd><dt>Actividad</dt><dd>${esc(c.act)} (NAICS ${c.naics})</dd><dt>Clasificación</dt><dd>Disregarded entity · sin ECI</dd></dl></div>
+  <div class="panel"><h3>Socio</h3><dl class="kv"><dt>Nombre</dt><dd>${esc(c.socio)}</dd><dt>Residencia fiscal</dt><dd>España</dd><dt>NIF (FTIN)</dt><dd>${esc(c.nif)}</dd><dt>Reference ID</dt><dd>${esc(c.ref)}</dd><dt>Dirección</dt><dd>${esc(c.dir)}</dd></dl></div>
+  <div class="panel"><h3>Obligaciones del año</h3><dl class="kv"><dt>Federal</dt><dd>1120 pro forma + 5472 · 15/04/${YEAR+1}</dd><dt>Estado</dt><dd>${c.estado==="Wyoming"?"Informe anual en el mes de aniversario":c.estado==="Florida"?"Informe anual del 1/1 al 1/5":"Sin informe anual"}</dd><dt>Agente registrado</dt><dd>Renovación anual</dd><dt>España</dt><dd>IRPF por atribución de rentas · Modelo 720 si procede</dd></dl></div></div>`;
+}
+
+// ---------- vista: instrucciones ----------
+const INSTR=[
+ {f:"5472",t:"Quién lo presenta",b:["Toda LLC unipersonal (disregarded) cuyo dueño sea extranjero, persona física o sociedad, aunque no haya tenido ingresos. Se trata como si fuera una sociedad estadounidense a efectos de este formulario.","Se presenta adjunto a un Form 1120 pro forma."],v:true},
+ {f:"5472",t:"Part I — Reporting Corporation",b:["1a: nombre y dirección de la LLC (con número de suite o unidad).","1b: EIN de la LLC.","1c: total de activos (el mismo importe que el item D del 1120).","1d y 1e: descripción y código de la actividad principal.","1f: valor total en dólares de las operaciones con partes vinculadas extranjeras de las Parts IV y VI y, en una foreign-owned U.S. DE, también de la Part V.","1g y 1h: número de Forms 5472 presentados en el año y suma de sus valores de la línea 1f.","1j: se marca el primer año que se presenta el 5472.","1o: países donde se desarrolla realmente el negocio; no vale escribir «worldwide».","Línea 3: casilla de foreign-owned U.S. DE. Se marca siempre en estas LLC."],v:true},
+ {f:"5472",t:"Part II — 25% Foreign Shareholder",b:["Una foreign-owned U.S. DE completa la Part II con los datos de su dueño extranjero.","4b(1): número de identificación estadounidense del socio (SSN o ITIN), si lo tiene.","4b(2): reference ID, si no tiene número estadounidense.","4b(3): número de identificación fiscal extranjero (FTIN), por ejemplo el NIF español. Si no tiene, se escribe «None» o «N/A»."],v:true},
+ {f:"5472",t:"Reference ID number",b:["Es un identificador que la propia LLC asigna a la persona cuando no tiene número estadounidense.","Debe ser alfanumérico, sin espacios ni caracteres especiales, y de 50 caracteres como máximo.","Hay que usar el mismo reference ID para esa persona todos los años."],v:false},
+ {f:"5472",t:"Part III — Related Party",b:["La completan todos los declarantes.","8b(1): número estadounidense de la parte vinculada (SSN o ITIN si es persona física; EIN en otro caso).","8b(2): reference ID si no tiene número estadounidense.","8f: países donde la parte vinculada desarrolla su negocio.","En la práctica, en estas LLC la parte vinculada suele ser el propio socio."],v:true},
+ {f:"5472",t:"Part IV — Monetary Transactions",b:["Operaciones en dinero con la parte vinculada extranjera.","Línea 17: importes recibidos en préstamo (saldo pendiente o método de media mensual).","Línea 21: otros importes recibidos.","Línea 31: importes prestados (saldo pendiente o método de media mensual).","Línea 35: otros importes pagados.","Los importes inferiores a 50.000 $ se pueden informar como «$50,000 or less»."],v:true},
+ {f:"5472",t:"Part V — Reportable Transactions of a Foreign-Owned U.S. DE",b:["Solo para foreign-owned U.S. DE.","Se marca la casilla si hubo otras operaciones no recogidas en la Part IV, como las relacionadas con la constitución, disolución, adquisición o venta de la LLC y las aportaciones o retiradas de dinero del socio.","Se describen en un escrito adjunto."],v:true},
+ {f:"5472",t:"Part VI — Nonmonetary and Less-Than-Full Consideration",b:["Operaciones sin dinero o a un precio que no es el de mercado con la parte vinculada extranjera.","Se adjunta un anexo que describa los bienes o servicios y una estimación razonable de su valor de mercado."],v:true},
+ {f:"5472",t:"Part VII — Additional Information",b:["40a y 40b: intereses o royalties no deducibles por la sección 267A.","41a a 41d: si se aplica la deducción de la sección 250 (FDII).","42a y 42b: préstamos con tipo de interés de puerto seguro (entre el 100 % y el 130 % del tipo federal aplicable).","43a, 43b(1) y 43b(2): no se rellenan si la LLC es foreign-owned U.S. DE."],v:true},
+ {f:"5472",t:"Sanciones",b:["25.000 $ por no presentar el 5472 a tiempo y en la forma prevista, o por no conservar los registros exigidos.","Un 5472 sustancialmente incompleto cuenta como no presentado.","Si la falta continúa más de 90 días después del aviso del IRS, se añaden 25.000 $ más por cada periodo de 30 días."],v:true},
+ {f:"1120",t:"1120 pro forma — qué se rellena",b:["Solo el nombre y la dirección de la LLC y los items B (EIN) y E del 1120.","Se escribe «Foreign-owned U.S. DE» en la parte superior.","Se adjunta el Form 5472.","El ejercicio es el del dueño en EE. UU.; si no tiene, el año natural."],v:true},
+ {f:"1120",t:"Cómo y cuándo se presenta",b:["No se puede presentar electrónicamente.","Fax: 855-887-7737, con resolución de 300 ppp o más.","Correo: Internal Revenue Service, 1973 Rulon White Blvd, M/S 6112, Attn: PIN Unit, Ogden, UT 84201. No se usa la dirección habitual de las instrucciones del 1120.","Plazo: el del Form 1120, incluidas las prórrogas (15 de abril en año natural)."],v:true},
+ {f:"7004",t:"Prórroga (Form 7004)",b:["Se presenta antes del vencimiento normal.","En la Part I, línea 1, se pone el código del Form 1120 y se escribe «Foreign-owned U.S. DE» en la parte superior.","Se envía al mismo fax o a la misma dirección que el pro forma, no a la dirección habitual del 7004."],v:true}
+];
+function viewInstr(){
+  return `<div class="head"><div><h1>Instrucciones IRS</h1><p class="sub">Form 5472 y 1120 pro forma para una foreign-owned U.S. DE: un ejemplo rellenado con lo que va en cada casilla y, debajo, las instrucciones del IRS traducidas y ordenadas por parte.</p></div></div>
+  <details class="ins"><summary><span>Ejemplo rellenado: Form 5472</span><span class="pill p-neu">5472</span></summary><div class="body" style="max-width:none"><p class="src">En amarillo, lo que se rellena; en gris, lo que normalmente no aplica; en marrón, qué va en cada campo; en azul, un ejemplo ficticio. Esquema didáctico, no el formulario oficial.</p><img src="img/f5472.png" alt="Form 5472 de ejemplo con la explicación de cada casilla en español" style="max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff"></div></details>
+  <details class="ins"><summary><span>Ejemplo rellenado: Form 1120 pro forma</span><span class="pill p-neu">1120</span></summary><div class="body" style="max-width:none"><p class="src">En amarillo, lo que se rellena; en gris, lo que normalmente no aplica; en marrón, qué va en cada campo; en azul, un ejemplo ficticio. Esquema didáctico, no el formulario oficial.</p><img src="img/f1120.png" alt="Form 1120 pro forma de ejemplo con la explicación de cada casilla en español" style="max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff"></div></details>
+  <h2>Instrucciones por parte</h2>
+  <input class="search" id="q" type="search" placeholder="Buscar: reference ID, línea 3, fax, sanción…" aria-label="Buscar en las instrucciones">
+  <div id="ilist" style="display:flex;flex-direction:column;gap:10px">${INSTR.map((x,i)=>`<details class="ins" data-i="${i}"><summary><span>${esc(x.t)}</span><span class="pill p-neu">${x.f}</span></summary><div class="body">${x.b.map(p=>`<p>${esc(p)}</p>`).join("")}<p class="src">${x.v?"Contrastado con las instrucciones del Form 5472 (rev. 12/2024).":"Comprobar en las instrucciones vigentes en irs.gov."}</p></div></details>`).join("")}</div>
+  <p class="src">Fuente: IRS, Instructions for Form 5472 (12/2024). Traducción y resumen propios; ante cualquier duda, prevalece el texto oficial en irs.gov.</p>`;
+}
+
+// ---------- eventos ----------
+function importPdf(c,m,fname){ const today=new Date().toLocaleDateString("es-ES"); c.ext=c.ext||{}; c.ext[m]={archivo:fname,recibido:today}; c.cerrados[m]=false;
+      let added=0, rv=0;
+      if(/demo/i.test(fname)&&!c.movs.some(x=>x.m===m)){ let next=Math.max(0,...c.movs.map(x=>x.id))+1; const d=n=>String(n).padStart(2,"0")+"/"+String(m+1).padStart(2,"0")+"/"+YEAR;
+        const first=c.socio.split(" ")[0].toUpperCase(), full=c.socio.toUpperCase(), last=c.socio.split(" ").slice(-1)[0].normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase();
+        const DEMO=[[2,c.ventas,1240],[5,"Canva Pro subscription",-12.99],[9,c.ventas,980],[11,"Google Ads",-145],[14,"Transfer to "+full+" (Wise)",-2000],
+          [17,"AMAZON.ES MARKETPLACE",-64.90,"¿Compra personal pagada con la tarjeta de la LLC?","¿La compra de Amazon del 17/10 fue personal o para el negocio?"],
+          [20,"Incoming transfer "+first+" "+last,1500,"¿Aportación de capital o préstamo "+(c.g==="f"?"de la socia":"del socio")+" a la LLC?","¿La transferencia de 1.500 $ del 20/10 es una aportación o un préstamo que la LLC te devolverá?"],
+          [23,c.ventas,1310],
+          [27,"Transfer to "+last+" FORMACION SL - diseño curso",-800,"Sociedad con el apellido "+(c.g==="f"?"de la socia":"del socio")+": ¿empresa vinculada? Si lo es, va en un 5472 aparte","¿"+last.charAt(0)+last.slice(1).toLowerCase()+" Formación SL es una sociedad tuya? ¿Qué servicio os prestó?"]];
+        DEMO.forEach(([dd,co,im,nota,preg])=>{let cat;if(nota)cat="revisar";else{const prev=c.movs.find(x=>x.concepto.trim().toLowerCase()===co.toLowerCase()&&x.cat!=="revisar");cat=prev?prev.cat:autoClass(co,im);}
+          const mv={id:next++,m,fecha:d(dd),concepto:co,importe:im,cat};if(cat==="revisar"){mv.nota=nota||"Sin clasificar";if(preg)mv.pregunta=preg;rv++;}c.movs.push(mv);added++;});
+        c.movs.sort((a,b)=>a.m-b.m||a.fecha.localeCompare(b.fecha)); }
+      else if(!c.movs.some(x=>x.m===m)){ let next=Math.max(0,...c.movs.map(x=>x.id))+1; const d=n=>String(n).padStart(2,"0")+"/"+String(m+1).padStart(2,"0")+"/"+YEAR; const r=seedRand(m*31+next);
+        const sim=[[d(4),c.ventas,Math.round(c.ingreso[0]*0.6+r()*800)],[d(15),c.ventas,Math.round(c.ingreso[0]*0.5+r()*700)],[d(6),"Shopify subscription",-39],[d(19),"Transfer "+c.socio.toUpperCase(),-1200]];
+        sim.forEach(([fe,co,im])=>{const prev=c.movs.find(x=>x.concepto.trim().toLowerCase()===co.toLowerCase()&&x.cat!=="revisar"&&x.cat!=="retir");const cat=prev?prev.cat:autoClass(co,im);const mv={id:next++,m,fecha:fe,concepto:co,importe:im,cat};if(cat==="revisar"){mv.nota="¿Retirada de beneficios o devolución de un préstamo?";rv++;}c.movs.push(mv);added++;});
+        c.movs.sort((a,b)=>a.m-b.m||a.fecha.localeCompare(b.fecha)); }
+      if(rv) c.alerta={desde:today,semanas:1};
+      save();return added?("PDF leído · la IA ha clasificado "+added+" movimientos y deja "+rv+" por revisar"):"PDF registrado como extracto de "+MESES_L[m];
+}
+function demoName(c,m){return "Extracto_DEMO_"+c.llc.replace(/\s+/g,"_").normalize("NFD").replace(/[\u0300-\u036f]/g,"")+"_"+YEAR+"-"+String(m+1).padStart(2,"0")+".pdf";}
+function bind(){
+  document.querySelectorAll("[data-nav-llc]").forEach(b=>b.addEventListener("click",()=>{MOVM=CLOSING;go("ficha",b.dataset.navLlc);}));
+  document.querySelectorAll("#nav [data-view]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.view)));
+  const rm=$("#remind"); if(rm) rm.addEventListener("click",()=>{const today=new Date().toLocaleDateString("es-ES");let n=0;DATA.forEach(x=>{if(octState(x)!=="ok"){x.alerta={desde:today,semanas:1};n++;}});save();render();toast("Recordatorio enviado a "+n+" clientes (simulado)");});
+  document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{TAB="mes";MOVM=CLOSING;EXTM=CLOSING;go("ficha",b.dataset.open);}));
+  document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
+  const ea=$("#edit-auto"); if(ea) ea.addEventListener("click",()=>{const c0=DATA.find(x=>x.id===CUR);const auto=c0.movs.filter(x=>x.m===MOVM&&x.cat!=="revisar");const tb=ea.closest("details").querySelector("tbody");const optionList=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v.t}</option>`).join("");tb.querySelectorAll("tr").forEach((tr,i)=>{const x=auto[i];tr.children[3].innerHTML=`<select class="cls" data-mov="${x.id}" aria-label="Clasificación">${optionList.replace(`value="${x.cat}"`,`value="${x.cat}" selected`)}</select>`;});tb.querySelectorAll("select.cls").forEach(s=>s.addEventListener("change",()=>{const m=c0.movs.find(x=>x.id==s.dataset.mov);m.cat=s.value;save();render();toast("Clasificado como «"+CATS[m.cat].t+"»");}));ea.hidden=true;});
+  document.querySelectorAll("[data-movm]").forEach(b=>b.addEventListener("click",()=>{MOVM=+b.dataset.movm;render();const d=document.querySelector("#month-detail");if(d)d.scrollIntoView({behavior:"smooth",block:"start"});}));
+  document.querySelectorAll("[data-extm]").forEach(b=>b.addEventListener("click",()=>{EXTM=+b.dataset.extm;render();}));
+  document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{TAB=b.dataset.tab;render();}));
+  const c=DATA.find(x=>x.id===CUR);
+  document.querySelectorAll("select.cls").forEach(s=>s.addEventListener("change",()=>{const m=c.movs.find(x=>x.id==s.dataset.mov);m.cat=s.value;if(m.cat!=="revisar"){delete m.nota;delete m.pregunta;}save();render();toast("Clasificado como «"+CATS[m.cat].t+"»");}));
+  const vp=$("#ver-pdf"); if(vp) vp.addEventListener("click",ev=>{ev.preventDefault();const bin=atob(DEMO_PDF);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([arr],{type:"application/pdf"}));window.open(url,"_blank");});
+  const du=$("#demo-up"); if(du) du.addEventListener("click",()=>{du.disabled=true;du.textContent="Leyendo el PDF…";setTimeout(()=>{const msg=importPdf(c,MOVM,demoName(c,MOVM));render();toast(msg);const d=$("#month-detail");if(d)d.scrollIntoView({behavior:"smooth",block:"start"});},900);});
+  const rs=$("#reset-demo"); if(rs) rs.addEventListener("click",()=>{DATA=freshData();save();VIEW="cierre";render();toast("Datos de ejemplo restablecidos");});
+  const cm=$("#copy-msg"); if(cm) cm.addEventListener("click",()=>copy($("#msg").value));
+  const cl=$("#close-month"); if(cl) cl.addEventListener("click",()=>{c.cerrados[MOVM]=true;if(MOVM===CLOSING)c.alerta=null;save();render();toast(MESES_L[MOVM][0].toUpperCase()+MESES_L[MOVM].slice(1)+" cerrado");});
+  const cf=$("#conf"); if(cf) cf.addEventListener("click",()=>{c.conformidad=!c.conformidad;save();render();});
+  const c5=$("#copy-5472"); if(c5) c5.addEventListener("click",()=>{const t=totals(c);copy(`Form 5472 ${YEAR} · ${c.llc} (EIN ${c.ein})\nTotal activos: ${fmtT(t.saldo)}\nAportaciones del socio: ${fmtT(t.aport)}\nRetiradas al socio: ${fmtT(t.retir)}\nPréstamos recibidos: ${fmtT(t.prestRec)} · concedidos: ${fmtT(t.prestDado)}\nSocio: ${c.socio} · NIF ${c.nif} · Ref. ${c.ref}`);});
+  [["#csv",()=>MOVM],["#csv-ext",()=>EXTM]].forEach(([sel,gm])=>{const csv=$(sel); if(csv) csv.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;
+    if(/\.pdf$/i.test(f.name)||f.type==="application/pdf"){ const msg=importPdf(c,gm(),f.name); render(); toast(msg); return; }const rd=new FileReader();rd.onload=()=>{let n=0,r=0;let next=Math.max(0,...c.movs.map(x=>x.id))+1;const startId=next;
+    rd.result.split(/\r?\n/).forEach(line=>{const p=line.split(/[;,\t]/);if(p.length<3)return;const imp=parseFloat(p[2].replace(/\./g,"").replace(",","."));if(isNaN(imp))return;const m=gm();const prev=c.movs.find(x=>x.concepto.trim().toLowerCase()===p[1].trim().toLowerCase()&&x.cat!=="revisar");const cat=prev?prev.cat:autoClass(p[1],imp);if(cat==="revisar")r++;n++;c.cerrados[m]=false;c.movs.push({id:next++,m,fecha:p[0].trim(),concepto:p[1].trim(),importe:imp,cat});});
+    c.ext=c.ext||{};c.movs.filter(x=>x.id>=startId).forEach(x=>{c.ext[x.m]={archivo:f.name,recibido:new Date().toLocaleDateString("es-ES")};});if(r) c.alerta={desde:new Date().toLocaleDateString("es-ES"),semanas:1};save();render();toast(n+" movimientos importados · "+r+" a revisar");};rd.readAsText(f);});});
+  const q=$("#q"); if(q) q.addEventListener("input",()=>{const s=q.value.toLowerCase();document.querySelectorAll(".ins[data-i]").forEach(d=>{const x=INSTR[d.dataset.i];const hit=!s||(x.t+" "+x.b.join(" ")).toLowerCase().includes(s);d.hidden=!hit;if(s&&hit)d.open=true;});});
+}
+render();
+})();
+</script>
+
+</body>
+</html>
